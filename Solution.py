@@ -34,10 +34,8 @@ def solve_file(filepath):
         lib_score = []
         for i in range(0, n_libs):
             score = sum(map(lambda x: book_scores[x], lib_book_ids[i]))
-            lib_score.append(score * lib_ship_books[i])
-
-        lib_sort_indexes = sorted(
-            range(len(lib_score)), key=lib_score.__getitem__)
+            mean_score = score/len(lib_book_ids[i]) * lib_ship_books[i]/lib_signup_days[i]
+            lib_score.append(mean_score)
 
         days_left = n_days
         zipped = zip(lib_score, lib_ids)
@@ -71,7 +69,7 @@ def solve_file(filepath):
             for book in lib_book_ids[lib_id][:books_will_be_shipped]:
                 for lib in libs_by_books[book]:
                     if lib not in processed_libs:
-                        lib_score[lib] -= book_scores[book]
+                        lib_score[lib] -= book_scores[book]/len(lib_book_ids[lib]) * lib_ship_books[lib] / lib_signup_days[lib]
                         lib_pq.push(lib_score[lib], lib)
 
     # for day in range(0, n_days):
