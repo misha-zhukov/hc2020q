@@ -15,6 +15,7 @@ def solve_file(filepath):
         lib_ship_books = []
         lib_book_ids = []
         lib_ids = []
+        libs_by_books=[[] for i in range(n_books)]
         for i in range(0, n_libs):
             cur_lib_n_books, cur_lib_signup_days, cur_lib_ship_books = [
                 int(s) for s in fp.readline().rstrip('\n').split(" ")]
@@ -23,6 +24,10 @@ def solve_file(filepath):
             lib_ship_books.append(cur_lib_ship_books)
             cur_book_ids = [int(s)
                             for s in fp.readline().rstrip('\n').split(" ")]
+            
+            for b in cur_book_ids:
+                libs_by_books[b].append(i)
+
             lib_book_ids.append(cur_book_ids)
             lib_ids.append(i)
 
@@ -45,8 +50,10 @@ def solve_file(filepath):
         chosen_lib_id_book_n = []
         chosen_book_ids = []
         already_shipped_books = set()
+        processed_libs = set()
         while days_left > 0 and len(lib_pq) > 0:
             lib_id = lib_pq.pop()
+            processed_libs.add(lib_id )
             days_left -= lib_signup_days[lib_id]
             if days_left <= 0:
                 continue
@@ -61,11 +68,11 @@ def solve_file(filepath):
             already_shipped_books.update(
                 lib_book_ids[lib_id][:books_will_be_shipped])
 
-            #TODO: update other libraries priorities reducing their score by the scores of the books taken
-            # loop through books_added
-            #   loop through libs_by_book[book]
-            #       lib.score -= book.score
-            #       lib_pq.push(lib.score, lib)
+            for book in lib_book_ids[lib_id][:books_will_be_shipped]:
+                for lib in libs_by_books[book]:
+                    if lib not in processed_libs:
+                        lib_score[lib] -= book_scores[book]
+                        lib_pq.push(lib_score[lib], lib)
 
     # for day in range(0, n_days):
 

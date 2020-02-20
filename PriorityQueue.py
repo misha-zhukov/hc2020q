@@ -30,6 +30,8 @@ class MaxPQ:
             key, data_obj = heapq.heappop(self.heap)
             if not data_obj.deleted:
                 break
+            else:
+                self.del_count -= 1
         
         del self.obj_dict[data_obj.id]
 
