@@ -7,9 +7,24 @@ import time
 
 def solve_file(filepath):
     with open(filepath) as fp:
-        N = int(fp.readline().rstrip('\n'))
-        for i in range(0, N):
-            data = [s for s in fp.readline().rstrip('\n').split(" ")]
+        n_books, n_libs, n_days = [
+            int(s) for s in fp.readline().rstrip('\n').split(" ")]
+        book_scores = [int(s) for s in fp.readline().rstrip('\n').split(" ")]
+        lib_n_books = []
+        lib_signup_days = []
+        lib_ship_books = []
+        lib_book_ids = []
+        lib_ids = []
+        for i in range(0, n_libs):
+            cur_lib_n_books, cur_lib_signup_days, cur_lib_ship_books = [
+                int(s) for s in fp.readline().rstrip('\n').split(" ")]
+            lib_n_books.append(cur_lib_n_books)
+            lib_signup_days.append(cur_lib_signup_days)
+            lib_ship_books.append(cur_lib_ship_books)
+            cur_book_ids = [int(s)
+                            for s in fp.readline().rstrip('\n').split(" ")]
+            lib_book_ids.append(cur_book_ids)
+            lib_ids.append(i)
 
     result = None
     return result
@@ -20,8 +35,8 @@ if __name__ == '__main__':
     problems_dir_path = 'in'
     solutions_dir_path = 'out'
 
-    problem_files = filesHelper.get_problem_files(problems_dir_path)
-    problem_files = problem_files[0]
+    # problem_files = filesHelper.get_problem_files(problems_dir_path)
+    problem_files = ['a_example.txt']
 
     for file in problem_files:
         print(f'Start working on {file}')
