@@ -1,9 +1,9 @@
 from os import path
 import os
+from PriorityQueue import MaxPQ
 from FilesHelper import FilesHelper
 from random import random
 import time
-
 
 def solve_file(filepath):
     with open(filepath) as fp:
@@ -38,11 +38,15 @@ def solve_file(filepath):
         zipped = zip(lib_score, lib_ids)
         sort = sorted(zipped, key=lambda x: x[0], reverse=False)
 
+        lib_pq = MaxPQ()
+        for k,v in sort:
+            lib_pq.push(k, v)
+
         chosen_lib_id_book_n = []
         chosen_book_ids = []
         already_shipped_books = set()
-        while days_left > 0 and len(sort) > 0:
-            lib_id = sort.pop()[1]
+        while days_left > 0 and len(lib_pq) > 0:
+            lib_id = lib_pq.pop()
             days_left -= lib_signup_days[lib_id]
             if days_left <= 0:
                 continue
@@ -56,6 +60,12 @@ def solve_file(filepath):
             chosen_lib_id_book_n.append([lib_id, books_will_be_shipped])
             already_shipped_books.update(
                 lib_book_ids[lib_id][:books_will_be_shipped])
+
+            #TODO: update other libraries priorities reducing their score by the scores of the books taken
+            # loop through books_added
+            #   loop through libs_by_book[book]
+            #       lib.score -= book.score
+            #       lib_pq.push(lib.score, lib)
 
     # for day in range(0, n_days):
 
