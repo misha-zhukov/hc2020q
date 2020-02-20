@@ -1,9 +1,9 @@
 from os import path
 import os
+from PriorityQueue import MaxPQ
 from FilesHelper import FilesHelper
 from random import random
 import time
-
 
 def solve_file(filepath):
     with open(filepath) as fp:
@@ -15,6 +15,7 @@ def solve_file(filepath):
         lib_ship_books = []
         lib_book_ids = []
         lib_ids = []
+        libs_by_books=[[] for i in range(n_books)]
         for i in range(0, n_libs):
             cur_lib_n_books, cur_lib_signup_days, cur_lib_ship_books = [
                 int(s) for s in fp.readline().rstrip('\n').split(" ")]
@@ -23,26 +24,34 @@ def solve_file(filepath):
             lib_ship_books.append(cur_lib_ship_books)
             cur_book_ids = [int(s)
                             for s in fp.readline().rstrip('\n').split(" ")]
+            
+            for b in cur_book_ids:
+                libs_by_books[b].append(i)
+
             lib_book_ids.append(cur_book_ids)
             lib_ids.append(i)
 
         lib_score = []
         for i in range(0, n_libs):
             score = sum(map(lambda x: book_scores[x], lib_book_ids[i]))
-            lib_score.append(score * lib_ship_books[i])
-
-        lib_sort_indexes = sorted(
-            range(len(lib_score)), key=lib_score.__getitem__)
+            mean_score = score/len(lib_book_ids[i]) * lib_ship_books[i]/lib_signup_days[i]
+            lib_score.append(mean_score)
 
         days_left = n_days
         zipped = zip(lib_score, lib_ids)
         sort = sorted(zipped, key=lambda x: x[0], reverse=False)
 
+        lib_pq = MaxPQ()
+        for k,v in sort:
+            lib_pq.push(k, v)
+
         chosen_lib_id_book_n = []
         chosen_book_ids = []
         already_shipped_books = set()
-        while days_left > 0 and len(sort) > 0:
-            lib_id = sort.pop()[1]
+        processed_libs = set()
+        while days_left > 0 and len(lib_pq) > 0:
+            lib_id = lib_pq.pop()
+            processed_libs.add(lib_id )
             days_left -= lib_signup_days[lib_id]
             if days_left <= 0:
                 continue
@@ -56,6 +65,12 @@ def solve_file(filepath):
             chosen_lib_id_book_n.append([lib_id, books_will_be_shipped])
             already_shipped_books.update(
                 lib_book_ids[lib_id][:books_will_be_shipped])
+
+            for book in lib_book_ids[lib_id][:books_will_be_shipped]:
+                for lib in libs_by_books[book]:
+                    if lib not in processed_libs:
+                        lib_score[lib] -= book_scores[book]/len(lib_book_ids[lib]) * lib_ship_books[lib] / lib_signup_days[lib]
+                        lib_pq.push(lib_score[lib], lib)
 
     # for day in range(0, n_days):
 
